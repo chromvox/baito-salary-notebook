@@ -102,13 +102,14 @@ main{max-width:1050px;margin:22px auto;padding:0 14px 40px}.stats{display:grid;g
       <p class="notice">カレンダーの日付をクリックすると、選択した日の入力画面が自動で開きます。登録済みの日を選んでも、同じ日にシフトを追加できます。給与は時給・深夜割増・超勤割増・手当をもとにした概算です。</p><div class="actions"><button class="btn" id="openShiftForm" type="button">✏️ 選択した日付のシフトを入力する</button><span class="muted" id="selectedDateLabel" style="align-self:center"></span></div>
     </div>
     <div class="panel">
-      <h2 class="form-title">選択日のシフトを入力</h2><p class="sub">勤務1回ごとに入力。休憩の開始時刻も指定できるので、昼休憩が深夜時間から誤って差し引かれません。22時〜翌5時の深夜割増と、実働8時間を超えた時間の超勤割増を自動計算します。</p>
+      <h2 class="form-title">選択日のシフトを入力</h2><p class="sub">勤務時間は「時間」と「分」で入力できます（休憩時間を除いた実働時間）。出勤時刻・勤務時間・休憩時間から退勤時刻を自動計算します。休憩開始時刻も指定でき、22時〜翌5時の深夜割増と、実働8時間を超えた時間の超勤割増を自動計算します。</p>
       <form id="shiftForm">
         <div class="grid">
           <div class="field"><label for="date">勤務日</label><input id="date" type="date" required></div>
           <div class="field"><label for="wage">基本時給（円）</label><input id="wage" type="number" min="1" step="1" value="1250" required></div>
           <div class="field"><label for="start">出勤時刻</label><input id="start" type="time" value="18:00" required></div>
-          <div class="field"><label for="end">退勤時刻</label><input id="end" type="time" value="23:00" required></div>
+          <div class="field"><label for="workHours">勤務時間（時間）</label><input id="workHours" type="number" min="0" max="24" step="1" value="4" required></div>
+          <div class="field"><label for="workMinutes">勤務時間（分）</label><input id="workMinutes" type="number" min="0" max="59" step="1" value="30" required></div>
           <div class="field"><label for="breakMin">休憩時間（分）</label><input id="breakMin" type="number" min="0" step="1" value="30" required></div>
           <div class="field"><label for="breakStart">休憩開始時刻</label><input id="breakStart" type="time" value="20:00" required></div>
           <div class="field"><label for="extra">その他手当（円）</label><input id="extra" type="number" min="0" step="1" value="0"></div>
@@ -179,7 +180,7 @@ function calc(r){
  pay+=num(r.extra)+num(r.transport);
  return {paid,nightMinutes,otMinutes,bothMinutes,normalMinutes,pay};
 }
-function readForm(){return {id:Date.now(),date:$('date').value,start:$('start').value,end:$('end').value,breakMin:num($('breakMin').value),breakStart:$('breakStart').value,wage:num($('wage').value),extra:num($('extra').value),transport:num($('transport').value),note:$('note').value.trim(),nightPct:num(settings.nightPct),otPct:num(settings.otPct),dailyLimit:num(settings.dailyLimit)};}
+function readForm(){const start=$('start').value;const workMinutes=num($('workHours').value)*60+num($('workMinutes').value);const breakMin=num($('breakMin').value);const endMinutes=(start?minutes(start):0)+workMinutes+breakMin;const end=String(Math.floor((endMinutes%1440)/60)).padStart(2,'0')+':'+String(endMinutes%60).padStart(2,'0');return {id:Date.now(),date:$('date').value,start,end,breakMin,breakStart:$('breakStart').value,wage:num($('wage').value),extra:num($('extra').value),transport:num($('transport').value),note:$('note').value.trim(),nightPct:num(settings.nightPct),otPct:num(settings.otPct),dailyLimit:num(settings.dailyLimit)};}
 function preview(){
  const r=readForm(); const c=calc(r);
  if(c.error){$('shiftPreview').textContent='入力を確認してね';$('shiftBreakdown').textContent=c.error;return;}
@@ -246,7 +247,7 @@ function switchTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 $('openShiftForm').addEventListener('click',()=>{ $('date').value=selectedCalendarDate;$('shiftForm').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=> $('start').focus({preventScroll:true}),350); });
 $('shiftForm').addEventListener('input',preview);
-$('shiftForm').addEventListener('submit',e=>{e.preventDefault();const r=readForm();if(!r.date||!r.start||!r.end||!r.breakStart||r.wage<=0){alert('勤務日・時刻・時給を確認してください。');return;}const c=calc(r);if(c.error){alert(c.error);return;}records.push(r);persist();$('note').value='';selectedCalendarDate=r.date;$('calendarMonth').value=r.date.slice(0,7);render();alert('シフトを登録しました！カレンダーと月収に反映したよ。');switchTab('calendar');});
+$('shiftForm').addEventListener('submit',e=>{e.preventDefault();const r=readForm();if(!r.date||!r.start||!r.breakStart||r.wage<=0||num($('workMinutes').value)>59||num($('workHours').value)>24||(num($('workHours').value)*60+num($('workMinutes').value))<=0){alert('勤務日・時刻・時給を確認してください。');return;}const c=calc(r);if(c.error){alert(c.error);return;}records.push(r);persist();$('note').value='';selectedCalendarDate=r.date;$('calendarMonth').value=r.date.slice(0,7);render();alert('シフトを登録しました！カレンダーと月収に反映したよ。');switchTab('calendar');});
 $('resetShift').addEventListener('click',()=>{$('shiftForm').reset();$('date').value=selectedCalendarDate||localDate(now);preview();});
 $('calendarMonth').addEventListener('input',()=>{selectedCalendarDate=($('calendarMonth').value||localMonth(now))+'-01';renderCalendar();});
 $('prevMonth').addEventListener('click',()=>{const d=new Date(($('calendarMonth').value||localMonth(now))+'-01T12:00:00');d.setMonth(d.getMonth()-1);$('calendarMonth').value=localMonth(d);selectedCalendarDate=localDate(d);renderCalendar();});
