@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#172554">
+<title>バイト給与ノート</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e3e8f0;--accent:#3157d5;--accent2:#eaf0ff;--good:#087f5b;--danger:#c43232;--shadow:0 8px 26px rgba(22,34,66,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+header{background:linear-gradient(120deg,#172554,#3157d5);color:white;padding:25px 18px 23px}
+.head{max-width:1050px;margin:auto;display:flex;align-items:center;gap:14px}.logo{width:50px;height:50px;border-radius:15px;background:#ffffff20;display:grid;place-items:center;font-size:27px}.head h1{font-size:clamp(21px,4vw,29px);margin:0}.head p{margin:4px 0 0;color:#dce5ff;font-size:13px}
+main{max-width:1050px;margin:22px auto;padding:0 14px 40px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.stat{padding:17px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:clamp(19px,3vw,27px);margin-top:5px;overflow-wrap:anywhere}
+.tabs{display:flex;gap:8px;overflow:auto;margin:0 0 15px;padding-bottom:3px}.tab{border:1px solid var(--line);background:white;border-radius:12px;padding:11px 15px;font:inherit;font-weight:700;white-space:nowrap;color:#475467;cursor:pointer}.tab.active{background:var(--accent);border-color:var(--accent);color:white}
+.panel{padding:clamp(16px,3vw,25px);margin-bottom:15px}.panel h2{font-size:20px;margin:0 0 6px}.sub{font-size:13px;color:var(--muted);margin:0 0 19px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:13px;font-weight:700;color:#475467}.field input,.field select{width:100%;min-width:0;padding:11px 12px;border:1px solid #ccd3df;border-radius:10px;font:inherit;background:white;color:var(--ink)}.field input:focus{outline:2px solid #b8c7ff;border-color:var(--accent)}.full{grid-column:1/-1}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}.btn{border:0;border-radius:11px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer;background:var(--accent);color:white}.btn.secondary{background:var(--accent2);color:var(--accent)}.btn.outline{background:white;color:#475467;border:1px solid var(--line)}.btn.danger{background:#fff0f0;color:var(--danger)}.btn:focus-visible{outline:3px solid #a9baff}
+.preview{background:#f0f4ff;border:1px solid #dce5ff;border-radius:14px;padding:15px;margin-top:16px}.preview .amount{font-size:28px;font-weight:800;color:#1e40af}.muted{color:var(--muted);font-size:13px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.row+ .row{margin-top:9px}.divider{height:1px;background:var(--line);margin:17px 0}
+.records{display:flex;flex-direction:column;gap:10px}.record{border:1px solid var(--line);border-radius:13px;padding:14px}.record strong{font-size:16px}.record .pay{font-size:19px;font-weight:800;white-space:nowrap}.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pill{font-size:12px;background:#f0f2f6;color:#475467;border-radius:99px;padding:4px 8px}.empty{text-align:center;padding:25px;color:var(--muted);border:1px dashed #cbd3e1;border-radius:12px}
+.months{display:flex;flex-direction:column;gap:11px}.month{display:grid;grid-template-columns:42px minmax(40px,1fr) 105px;align-items:center;gap:10px;font-size:13px}.bar{height:10px;background:#edf0f6;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;background:var(--accent);border-radius:99px}.month .val{text-align:right;font-variant-numeric:tabular-nums}
+.notice{font-size:12px;color:var(--muted);line-height:1.7}.setting-toggle{margin-top:12px}.hidden{display:none!important}
+@media(max-width:620px){.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}.grid{grid-template-columns:1fr}.full{grid-column:auto}.month{grid-template-columns:34px minmax(25px,1fr) 90px}.actions .btn{flex:1}.head{align-items:flex-start}}
+
+.calendar-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}.calendar-controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.calendar-controls input{border:1px solid #ccd3df;border-radius:10px;padding:10px;font:inherit;background:#fff;max-width:170px}.calendar-summary{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:12px 0 18px}.calendar-summary>div{background:#f0f4ff;border:1px solid #dce5ff;border-radius:13px;padding:12px}.calendar-summary span{display:block}.calendar-summary strong{display:block;font-size:clamp(17px,2.5vw,24px);margin-top:4px}.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:10px;overflow:hidden}.cal-weekday{padding:8px 3px;text-align:center;font-size:12px;font-weight:800;background:#f7f8fb;border-right:1px solid var(--line);border-bottom:1px solid var(--line);color:#475467}.cal-day{min-height:100px;padding:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff;cursor:pointer;min-width:0}.cal-day:hover,.cal-day:focus{background:#f5f8ff;outline:2px solid #b8c7ff;outline-offset:-2px}.cal-day.other-month{background:#fafbfc;color:#a0a7b5}.cal-day.selected{box-shadow:inset 0 0 0 2px var(--accent);background:#f3f6ff}.cal-day.today .cal-num{background:var(--accent);color:#fff;border-radius:99px}.cal-num{display:inline-grid;place-items:center;width:25px;height:25px;font-size:12px;font-weight:700;margin-bottom:5px}.cal-shift{font-size:11px;line-height:1.35;padding:5px 6px;margin:2px 0;border-radius:6px;background:#eaf0ff;color:#2347b5;overflow-wrap:anywhere}.cal-shift.night{background:#f3e8ff;color:#7e22ce}.cal-shift.weekend{background:#fff0f0;color:#be123c}.cal-more{font-size:10px;color:var(--muted);padding:2px}.form-title{margin-top:2px}.calendar-total-note{font-size:12px;color:var(--muted)}
+@media(max-width:620px){.calendar-summary{grid-template-columns:1fr 1fr}.calendar-summary>div:first-child{grid-column:1/-1}.cal-day{min-height:76px;padding:3px}.cal-shift{font-size:10px;padding:3px 4px}.calendar-controls{width:100%}.calendar-controls input{flex:1;max-width:none}.cal-num{width:22px;height:22px}}
+
+</style>
+</head>
+<body>
+<header><div class="head"><div class="logo">￥</div><div><h1>バイト給与ノート</h1><p>シフトをカレンダーに入力して、月収をかんたん確認</p></div></div></header>
+<main>
+  <section class="stats">
+    <div class="stat"><small>今年の記録済み給与</small><strong id="statYear">0円</strong></div>
+    <div class="stat"><small>今月の記録済み給与</small><strong id="statMonth">0円</strong></div>
+    <div class="stat"><small>記録した勤務回数</small><strong id="statCount">0回</strong></div>
+  </section>
+  <nav class="tabs" aria-label="メニュー">
+    <button class="tab active" data-tab="calendar">📅 シフトカレンダー</button>
+    <button class="tab" data-tab="record">📋 勤務履歴</button>
+    <button class="tab" data-tab="summary">📊 月別集計</button>
+    <button class="tab" data-tab="settings">⚙️ 設定</button>
+  </nav>
+  <section id="page-calendar" class="page">
+    <div class="panel">
+      <div class="calendar-head"><div><h2 id="calendarHeading">シフトカレンダー</h2><p class="sub">入っているシフトを日付ごとに登録すると、その月の予想給与が自動で合計されます。</p></div><div class="calendar-controls"><button class="btn outline" id="prevMonth" type="button" aria-label="前の月">‹</button><input id="calendarMonth" type="month" aria-label="表示する月"><button class="btn outline" id="nextMonth" type="button" aria-label="次の月">›</button><button class="btn secondary" id="calendarToday" type="button">今月</button></div></div>
+      <div class="calendar-summary"><div><span class="muted">この月のシフト収入（概算）</span><strong id="calendarTotal">0円</strong></div><div><span class="muted">登録シフト</span><strong id="calendarCount">0回</strong></div><div><span class="muted">実働時間</span><strong id="calendarHours">0時間</strong></div></div>
+      <div class="calendar-grid" id="calendarGrid" aria-label="月間シフトカレンダー"></div>
+      <p class="notice">カレンダーの日付をクリックすると、選択した日の入力画面が自動で開きます。登録済みの日を選んでも、同じ日にシフトを追加できます。給与は時給・深夜割増・超勤割増・手当をもとにした概算です。</p><div class="actions"><button class="btn" id="openShiftForm" type="button">✏️ 選択した日付のシフトを入力する</button><span class="muted" id="selectedDateLabel" style="align-self:center"></span></div>
+    </div>
+    <div class="panel">
+      <h2 class="form-title">選択日のシフトを入力</h2><p class="sub">勤務1回ごとに入力。休憩の開始時刻も指定できるので、昼休憩が深夜時間から誤って差し引かれません。22時〜翌5時の深夜割増と、実働8時間を超えた時間の超勤割増を自動計算します。</p>
+      <form id="shiftForm">
+        <div class="grid">
+          <div class="field"><label for="date">勤務日</label><input id="date" type="date" required></div>
+          <div class="field"><label for="wage">基本時給（円）</label><input id="wage" type="number" min="1" step="1" value="1250" required></div>
+          <div class="field"><label for="start">出勤時刻</label><input id="start" type="time" value="18:00" required></div>
+          <div class="field"><label for="end">退勤時刻</label><input id="end" type="time" value="23:00" required></div>
+          <div class="field"><label for="breakMin">休憩時間（分）</label><input id="breakMin" type="number" min="0" step="1" value="30" required></div>
+          <div class="field"><label for="breakStart">休憩開始時刻</label><input id="breakStart" type="time" value="20:00" required></div>
+          <div class="field"><label for="extra">その他手当（円）</label><input id="extra" type="number" min="0" step="1" value="0"></div>
+          <div class="field"><label for="transport">交通費（円）</label><input id="transport" type="number" min="0" step="1" value="0"></div>
+          <div class="field"><label for="note">メモ（任意）</label><input id="note" type="text" maxlength="100" placeholder="例：土曜シフト"></div>
+        </div>
+        <div class="preview"><div class="muted">この勤務の概算給与（額面）</div><div class="amount" id="shiftPreview">—</div><div class="muted" id="shiftBreakdown">勤務時刻を入力すると計算します。</div></div>
+        <div class="actions"><button class="btn" type="submit">＋ 記録を追加</button><button class="btn secondary" type="button" id="resetShift">入力をリセット</button></div>
+      </form>
+    </div>
+  </section>
+  <section id="page-record" class="page">
+    <div class="panel"><div class="row"><h2>勤務履歴</h2><span id="recordCount" class="muted">0件</span></div><p class="sub">保存された記録はこのブラウザ内に保管されます。</p><div id="records" class="records"></div><div class="actions"><button class="btn secondary" id="exportCsv">CSVを書き出す</button><button class="btn secondary" id="exportJson">バックアップ保存</button><button class="btn outline" id="importJsonBtn">バックアップ読込</button><input class="hidden" type="file" id="importJson" accept=".json,application/json"></div></div>
+  </section>
+  <section id="page-summary" class="page hidden">
+    <div class="panel"><h2>月別集計</h2><p class="sub">記録した勤務だけを集計します。</p><div class="grid"><div class="field"><label for="summaryMonth">集計する月</label><input id="summaryMonth" type="month"></div></div><div class="preview"><div class="muted">選択した月の給与（額面）</div><div class="amount" id="monthTotal">0円</div><div class="muted" id="monthMeta">0回の勤務</div></div><div class="divider"></div><h2 id="yearHeading">年間の収入</h2><div class="months" id="monthBars"></div><div class="divider"></div><div class="row"><span class="muted">年間の記録済み給与</span><strong id="yearTotal">0円</strong></div><div class="row"><span class="muted">記録のある月</span><strong id="activeMonths">0 / 12か月</strong></div><p class="notice">年間合計は、登録済みの勤務記録だけを集計しています。未登録のシフトは含まれません。</p></div>
+  </section>
+  <section id="page-settings" class="page hidden">
+    <div class="panel"><h2>給与計算の設定</h2><p class="sub">ガストでの勤務条件に合わせて調整できます。設定変更は新しく登録するシフトに適用され、保存済み記録の条件はそのまま残ります。</p><div class="grid">
+      <div class="field"><label for="nightPct">深夜割増（％）</label><input id="nightPct" type="number" min="0" max="100" value="25"></div>
+      <div class="field"><label for="otPct">超勤割増（％）</label><input id="otPct" type="number" min="0" max="200" value="25"></div>
+      <div class="field"><label for="dailyLimit">超勤判定の基準（実働時間）</label><select id="dailyLimit"><option value="8">8時間</option><option value="7.5">7.5時間</option><option value="6">6時間</option></select></div>
+    </div><div class="actions"><button class="btn" id="saveSettings">設定を保存</button></div><div class="divider"></div><h2>データ管理</h2><p class="notice">データはこのブラウザのローカルストレージに保存され、サーバーには送信されません。同じ端末・同じブラウザで使ってください。ブラウザのデータ消去や端末故障に備えて、定期的にバックアップを保存してください。</p><div class="actions"><button class="btn secondary" id="settingsExport">バックアップ保存</button><button class="btn outline" id="settingsImport">バックアップ読込</button><button class="btn danger" id="clearAll">全データを削除</button></div></div>
+  </section>
+  <p class="notice">※ 給与は概算です。休憩の時間帯、日をまたぐ勤務、週40時間超、法定休日、会社独自の賃金規定などにより実際の給与明細と異なる場合があります。法定時間外労働などの条件は単純な「1日8時間超」だけでは決まらない場合があります。</p>
+</main>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const STORAGE_KEY='baitoSalaryNotebook.v1';
+const now=new Date();
+const localDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const localMonth = d => localDate(d).slice(0,7);
+$('date').value=localDate(now); $('summaryMonth').value=localMonth(now); $('calendarMonth').value=localMonth(now);
+let records=[], settings={nightPct:25,otPct:25,dailyLimit:8};
+let selectedCalendarDate=localDate(now);
+const yen = x => Math.round(x).toLocaleString('ja-JP')+'円';
+const num = x => Math.max(0,Number(x)||0);
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({records,settings}));}catch(e){alert('ブラウザに保存できませんでした。空き容量やプライバシー設定を確認してください。');}}
+function load(){try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');records=Array.isArray(x.records)?x.records:[];if(x.settings)settings={...settings,...x.settings};}catch(e){records=[];} $('nightPct').value=settings.nightPct;$('otPct').value=settings.otPct;$('dailyLimit').value=settings.dailyLimit;}
+function minutes(t){const [h,m]=String(t).split(':').map(Number);return h*60+m;}
+function calc(r){
+ const s=minutes(r.start), e0=minutes(r.end), e=e0<=s?e0+1440:e0;
+ const elapsed=e-s, rest=num(r.breakMin);
+ if(rest>elapsed) return {error:'休憩が勤務時間を超えています。'};
+ const breakClock=minutes(r.breakStart || r.start);
+ let bs=breakClock;
+ if(bs<s) bs+=1440;
+ const be=bs+rest;
+ if(rest>0 && (bs<s || bs>=e || be>e)) return {error:'休憩開始時刻が勤務時間内に収まるように入力してください。'};
+ const paid=elapsed-rest, limit=num(r.dailyLimit ?? settings.dailyLimit)*60;
+ const nightRate=num(r.nightPct ?? settings.nightPct)/100, otRate=num(r.otPct ?? settings.otPct)/100;
+ // Exclude the actual break interval so a daytime/lunch break does not reduce night hours.
+ let pay=0, nightMinutes=0, otMinutes=0, bothMinutes=0, normalMinutes=0, paidIndex=0;
+ for(let t=s;t<e;t++){
+   if(rest>0 && t>=bs && t<be) continue;
+   const clock=((t%1440)+1440)%1440;
+   const night=clock>=1320||clock<300;
+   const ot=paidIndex>=limit;
+   if(night)nightMinutes++;
+   if(ot)otMinutes++;
+   if(night&&ot)bothMinutes++;
+   if(!night&&!ot)normalMinutes++;
+   pay+=num(r.wage)*(1+(night?nightRate:0)+(ot?otRate:0))/60;
+   paidIndex++;
+ }
+ pay+=num(r.extra)+num(r.transport);
+ return {paid,nightMinutes,otMinutes,bothMinutes,normalMinutes,pay};
+}
+function readForm(){return {id:Date.now(),date:$('date').value,start:$('start').value,end:$('end').value,breakMin:num($('breakMin').value),breakStart:$('breakStart').value,wage:num($('wage').value),extra:num($('extra').value),transport:num($('transport').value),note:$('note').value.trim(),nightPct:num(settings.nightPct),otPct:num(settings.otPct),dailyLimit:num(settings.dailyLimit)};}
+function preview(){
+ const r=readForm(); const c=calc(r);
+ if(c.error){$('shiftPreview').textContent='入力を確認してね';$('shiftBreakdown').textContent=c.error;return;}
+ $('shiftPreview').textContent=yen(c.pay);
+ $('shiftBreakdown').textContent=`実働 ${(c.paid/60).toFixed(2)}時間 ／ 深夜 ${(c.nightMinutes/60).toFixed(2)}時間 ／ 超勤 ${(c.otMinutes/60).toFixed(2)}時間（うち深夜＋超勤 ${(c.bothMinutes/60).toFixed(2)}時間）`;
+}
+function monthRecords(m){return records.filter(r=>r.date&&r.date.slice(0,7)===m);}
+function sumPay(arr){return arr.reduce((s,r)=>s+(calc(r).pay||0),0);}
+function renderRecords(){
+ const el=$('records'); $('recordCount').textContent=records.length+'件';
+ if(!records.length){el.innerHTML='<div class="empty">まだ勤務記録がないよ。最初の勤務を登録しよう！</div>';return;}
+ el.innerHTML='';
+ [...records].sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start)).forEach(r=>{
+   const c=calc(r), card=document.createElement('div');card.className='record';
+   const top=document.createElement('div');top.className='row';
+   const left=document.createElement('div');const date=document.createElement('strong');date.textContent=r.date;const times=document.createElement('div');times.className='muted';times.textContent=`${r.start}〜${r.end} · 休憩 ${r.breakMin}分（${r.breakStart||'時刻未設定'}〜）`;left.append(date,times);
+   const pay=document.createElement('div');pay.className='pay';pay.textContent=yen(c.pay);top.append(left,pay);card.append(top);
+   const pills=document.createElement('div');pills.className='pills';
+   [`実働 ${(c.paid/60).toFixed(2)}h`,`深夜 ${(c.nightMinutes/60).toFixed(2)}h`,`超勤 ${(c.otMinutes/60).toFixed(2)}h`,...(r.note?[r.note]:[])].forEach(t=>{const p=document.createElement('span');p.className='pill';p.textContent=t;pills.append(p);});
+   const actions=document.createElement('div');actions.className='actions';const del=document.createElement('button');del.className='btn danger';del.textContent='この記録を削除';del.addEventListener('click',()=>{if(confirm(`${r.date}の勤務記録を削除する？`)){records=records.filter(x=>x.id!==r.id);persist();render();}});actions.append(del);card.append(pills,actions);el.append(card);
+ });
+}
+function renderSummary(){
+ const m=$('summaryMonth').value||localMonth(now), yr=m.slice(0,4), list=monthRecords(m);
+ $('monthTotal').textContent=yen(sumPay(list));$('monthMeta').textContent=`${list.length}回の勤務 · 実働合計 ${(list.reduce((s,r)=>s+calc(r).paid,0)/60).toFixed(2)}時間`;
+ $('yearHeading').textContent=yr+'年の月別収入';
+ const months=Array.from({length:12},(_,i)=>{const key=yr+'-'+String(i+1).padStart(2,'0');return {key,label:(i+1)+'月',arr:monthRecords(key)};});
+ const vals=months.map(x=>sumPay(x.arr)), max=Math.max(1,...vals);$('monthBars').innerHTML='';
+ months.forEach((m,i)=>{const row=document.createElement('div');row.className='month';const lab=document.createElement('span');lab.textContent=m.label;const bar=document.createElement('div');bar.className='bar';const fill=document.createElement('span');fill.style.width=(vals[i]/max*100)+'%';bar.append(fill);const val=document.createElement('span');val.className='val';val.textContent=yen(vals[i]);row.append(lab,bar,val);$('monthBars').append(row);});
+ const yrRecords=records.filter(r=>r.date&&r.date.slice(0,4)===yr), active=new Set(yrRecords.map(r=>r.date.slice(0,7))).size, total=sumPay(yrRecords);
+ $('yearTotal').textContent=yen(total);$('activeMonths').textContent=active+' / 12か月';
+}
+function renderCalendar(){
+ const input=$('calendarMonth');
+ const month=input.value||localMonth(now);
+ const [yy,mm]=month.split('-').map(Number);
+ const first=new Date(yy,mm-1,1,12), startDay=first.getDay();
+ const daysInMonth=new Date(yy,mm,0,12).getDate();
+ const prevDays=new Date(yy,mm-1,0,12).getDate();
+ $('calendarHeading').textContent=`${yy}年${mm}月のシフト`;
+ const monthList=monthRecords(month);
+ $('calendarTotal').textContent=yen(sumPay(monthList));
+ $('calendarCount').textContent=monthList.length+'回';
+ $('calendarHours').textContent=(monthList.reduce((n,r)=>n+(calc(r).paid||0),0)/60).toFixed(1)+'時間';
+ const grid=$('calendarGrid'); grid.innerHTML='';
+ ['日','月','火','水','木','金','土'].forEach((w,i)=>{const el=document.createElement('div');el.className='cal-weekday';el.textContent=w;if(i===0)el.style.color='#be123c';if(i===6)el.style.color='#2563eb';grid.append(el);});
+ for(let i=0;i<42;i++){
+   let day, date, other=false;
+   if(i<startDay){day=prevDays-startDay+i+1;date=localDate(new Date(yy,mm-2,day,12));other=true;}
+   else if(i>=startDay+daysInMonth){day=i-(startDay+daysInMonth)+1;date=localDate(new Date(yy,mm,day,12));other=true;}
+   else {day=i-startDay+1;date=`${yy}-${String(mm).padStart(2,'0')}-${String(day).padStart(2,'0')}`;}
+   const cell=document.createElement('button');cell.type='button';cell.className='cal-day'+(other?' other-month':'')+(date===selectedCalendarDate?' selected':'')+(date===localDate(now)?' today':'');cell.setAttribute('aria-label',date+' のシフトを入力');
+   const numEl=document.createElement('div');numEl.className='cal-num';numEl.textContent=day;cell.append(numEl);
+   const shifts=records.filter(r=>r.date===date).sort((a,b)=>a.start.localeCompare(b.start));
+   shifts.slice(0,3).forEach(r=>{const c=calc(r), item=document.createElement('div');item.className='cal-shift'+(c.nightMinutes?' night':'')+([0,6].includes(new Date(date+'T12:00:00').getDay())?' weekend':'');item.textContent=`${r.start}–${r.end} · ${yen(c.pay)}`;cell.append(item);});
+   if(shifts.length>3){const more=document.createElement('div');more.className='cal-more';more.textContent=`ほか ${shifts.length-3}件`;cell.append(more);}
+   cell.addEventListener('click',()=>{selectedCalendarDate=date;$('date').value=date;$('calendarMonth').value=date.slice(0,7);renderCalendar();$('selectedDateLabel').textContent=date+' を選択中';$('shiftForm').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=> $('start').focus({preventScroll:true}),350);});
+   grid.append(cell);
+ }
+}
+function renderStats(){const m=localMonth(now),y=String(now.getFullYear());$('statMonth').textContent=yen(sumPay(monthRecords(m)));$('statYear').textContent=yen(sumPay(records.filter(r=>r.date&&r.date.startsWith(y))));$('statCount').textContent=records.length+'回';}
+function render(){renderRecords();renderSummary();renderStats();renderCalendar();preview();}
+function switchTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));document.querySelectorAll('.page').forEach(p=>p.classList.toggle('hidden',p.id!=='page-'+tab));}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+$('openShiftForm').addEventListener('click',()=>{ $('date').value=selectedCalendarDate;$('shiftForm').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=> $('start').focus({preventScroll:true}),350); });
+$('shiftForm').addEventListener('input',preview);
+$('shiftForm').addEventListener('submit',e=>{e.preventDefault();const r=readForm();if(!r.date||!r.start||!r.end||!r.breakStart||r.wage<=0){alert('勤務日・時刻・時給を確認してください。');return;}const c=calc(r);if(c.error){alert(c.error);return;}records.push(r);persist();$('note').value='';selectedCalendarDate=r.date;$('calendarMonth').value=r.date.slice(0,7);render();alert('シフトを登録しました！カレンダーと月収に反映したよ。');switchTab('calendar');});
+$('resetShift').addEventListener('click',()=>{$('shiftForm').reset();$('date').value=selectedCalendarDate||localDate(now);preview();});
+$('calendarMonth').addEventListener('input',()=>{selectedCalendarDate=($('calendarMonth').value||localMonth(now))+'-01';renderCalendar();});
+$('prevMonth').addEventListener('click',()=>{const d=new Date(($('calendarMonth').value||localMonth(now))+'-01T12:00:00');d.setMonth(d.getMonth()-1);$('calendarMonth').value=localMonth(d);selectedCalendarDate=localDate(d);renderCalendar();});
+$('nextMonth').addEventListener('click',()=>{const d=new Date(($('calendarMonth').value||localMonth(now))+'-01T12:00:00');d.setMonth(d.getMonth()+1);$('calendarMonth').value=localMonth(d);selectedCalendarDate=localDate(d);renderCalendar();});
+$('calendarToday').addEventListener('click',()=>{$('calendarMonth').value=localMonth(now);selectedCalendarDate=localDate(now);$('date').value=selectedCalendarDate;renderCalendar();});
+$('summaryMonth').addEventListener('input',renderSummary);
+$('saveSettings').addEventListener('click',()=>{settings={nightPct:num($('nightPct').value),otPct:num($('otPct').value),dailyLimit:num($('dailyLimit').value)};persist();render();alert('設定を保存しました。');});
+function download(name,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function backup(){download('baito-salary-backup-'+localDate(now)+'.json',JSON.stringify({records,settings},null,2),'application/json');}
+function csv(){const cols=['date','start','end','breakMin','wage','extra','transport','note','pay','paidHours','nightHours','overtimeHours'];const rows=[cols.join(',')];records.forEach(r=>{const c=calc(r);const vals=[r.date,r.start,r.end,r.breakMin,r.wage,r.extra,r.transport,r.note,c.pay,(c.paid/60).toFixed(2),(c.nightMinutes/60).toFixed(2),(c.otMinutes/60).toFixed(2)];rows.push(vals.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(','));});download('baito-salary-'+localDate(now)+'.csv','\uFEFF'+rows.join('\r\n'),'text/csv;charset=utf-8');}
+$('exportCsv').addEventListener('click',csv);$('exportJson').addEventListener('click',backup);$('settingsExport').addEventListener('click',backup);
+function importFile(){ $('importJson').click(); } $('importJsonBtn').addEventListener('click',importFile);$('settingsImport').addEventListener('click',importFile);
+$('importJson').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const x=JSON.parse(await f.text());if(!Array.isArray(x.records))throw Error('形式が違います');if(!confirm('現在の記録と設定をバックアップ内容で置き換えますか？'))return;records=x.records;settings={...settings,...(x.settings||{})};$('nightPct').value=settings.nightPct;$('otPct').value=settings.otPct;$('dailyLimit').value=settings.dailyLimit;persist();render();alert('バックアップを読み込みました。');}catch(err){alert('読み込めませんでした。正しいバックアップJSONを選んでください。');}finally{e.target.value='';}});
+$('clearAll').addEventListener('click',()=>{if(confirm('勤務記録と設定を含む保存データをすべて削除します。先にバックアップを取った？')&&confirm('本当に削除しますか？この操作は元に戻せません。')){records=[];settings={nightPct:25,otPct:25,dailyLimit:8};persist();$('nightPct').value=25;$('otPct').value=25;$('dailyLimit').value=8;render();}});
+load();render();preview();$('selectedDateLabel').textContent=selectedCalendarDate+' を選択中';
+})();
+</script>
+</body>
+</html>
