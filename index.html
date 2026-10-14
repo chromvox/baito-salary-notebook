@@ -102,7 +102,7 @@ main{max-width:1050px;margin:22px auto;padding:0 14px 40px}.stats{display:grid;g
       <p class="notice">カレンダーの日付をクリックすると、選択した日の入力画面が自動で開きます。登録済みの日を選んでも、同じ日にシフトを追加できます。給与は時給・深夜割増・超勤割増をもとにした概算です。</p><div class="actions"><button class="btn" id="openShiftForm" type="button">✏️ 選択した日付のシフトを入力する</button><span class="muted" id="selectedDateLabel" style="align-self:center"></span></div>
     </div>
     <div class="panel">
-      <h2 class="form-title">選択日のシフトを入力</h2><p class="sub">出勤時刻と退勤時刻はキーボードで「時:分」の形式（例：18:00）で入力できます。休憩時間と休憩開始時刻を指定すると、22時〜翌5時の深夜割増と、実働8時間を超えた時間の超勤割増を自動計算します。</p>
+      <h2 class="form-title">選択日のシフトを入力</h2><p class="sub">出勤時刻・退勤時刻・休憩開始時刻はキーボードで「時:分」の形式（例：18:00）で入力できます。休憩時間を指定すると、22時〜翌5時の深夜割増と、実働8時間を超えた時間の超勤割増を自動計算します。</p>
       <form id="shiftForm">
         <div class="grid">
           <div class="field"><label for="date">勤務日</label><input id="date" type="date" required></div>
@@ -110,7 +110,7 @@ main{max-width:1050px;margin:22px auto;padding:0 14px 40px}.stats{display:grid;g
           <div class="field"><label for="start">出勤時刻（時:分）</label><input id="start" type="text" inputmode="numeric" autocomplete="off" placeholder="18:00" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" value="18:00" maxlength="5" required></div>
           <div class="field"><label for="end">退勤時刻（時:分）</label><input id="end" type="text" inputmode="numeric" autocomplete="off" placeholder="23:00" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" value="23:00" maxlength="5" required></div>
           <div class="field"><label for="breakMin">休憩時間（分）</label><input id="breakMin" type="number" min="0" step="1" value="30" required></div>
-          <div class="field"><label for="breakStart">休憩開始時刻</label><input id="breakStart" type="time" value="20:00" required></div>
+          <div class="field"><label for="breakStart">休憩開始時刻（時:分）</label><input id="breakStart" type="text" inputmode="text" autocomplete="off" placeholder="20:00" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" value="20:00" maxlength="5" required></div>
           <div class="field"><label for="transport">交通費（円）</label><input id="transport" type="number" min="0" step="1" value="0"></div>
           <div class="field"><label for="note">メモ（任意）</label><input id="note" type="text" maxlength="100" placeholder="例：土曜シフト"></div>
         </div>
@@ -245,7 +245,7 @@ function switchTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 $('openShiftForm').addEventListener('click',()=>{ $('date').value=selectedCalendarDate;$('shiftForm').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=> $('start').focus({preventScroll:true}),350); });
 $('shiftForm').addEventListener('input',preview);
-$('shiftForm').addEventListener('submit',e=>{e.preventDefault();const r=readForm();if(!r.date||!/^([01]?\d|2[0-3]):[0-5]\d$/.test(r.start)||!/^([01]?\d|2[0-3]):[0-5]\d$/.test(r.end)||!r.breakStart||r.wage<=0||minutes(r.start)===minutes(r.end)&&num(r.breakMin)===0){alert('勤務日・出勤時刻・退勤時刻・時給を確認してください。時刻は例のように18:00と入力してください。');return;}const c=calc(r);if(c.error){alert(c.error);return;}records.push(r);persist();$('note').value='';selectedCalendarDate=r.date;$('calendarMonth').value=r.date.slice(0,7);render();alert('シフトを登録しました！カレンダーと月収に反映したよ。');switchTab('calendar');});
+$('shiftForm').addEventListener('submit',e=>{e.preventDefault();const r=readForm();if(!r.date||!/^([01]?\d|2[0-3]):[0-5]\d$/.test(r.start)||!/^([01]?\d|2[0-3]):[0-5]\d$/.test(r.end)||!/^([01]?\d|2[0-3]):[0-5]\d$/.test(r.breakStart)||r.wage<=0||minutes(r.start)===minutes(r.end)&&num(r.breakMin)===0){alert('勤務日・出勤時刻・退勤時刻・時給を確認してください。時刻は例のように18:00と入力してください。');return;}const c=calc(r);if(c.error){alert(c.error);return;}records.push(r);persist();$('note').value='';selectedCalendarDate=r.date;$('calendarMonth').value=r.date.slice(0,7);render();alert('シフトを登録しました！カレンダーと月収に反映したよ。');switchTab('calendar');});
 $('resetShift').addEventListener('click',()=>{$('shiftForm').reset();$('date').value=selectedCalendarDate||localDate(now);preview();});
 $('calendarMonth').addEventListener('input',()=>{selectedCalendarDate=($('calendarMonth').value||localMonth(now))+'-01';renderCalendar();});
 $('prevMonth').addEventListener('click',()=>{const d=new Date(($('calendarMonth').value||localMonth(now))+'-01T12:00:00');d.setMonth(d.getMonth()-1);$('calendarMonth').value=localMonth(d);selectedCalendarDate=localDate(d);renderCalendar();});
